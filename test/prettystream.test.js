@@ -133,6 +133,77 @@ describe('A PrettyStream', function(){
     prettyStream.write(simpleRecord);
     prettyStream.end();
   });
+
+  context('errors', () => {
+    it('should print Error objects', done => {
+      var prettyStream = new PrettyStream({useColor: false});
+      var test = function(data){
+        data.should.startWith('[2012-02-08T22:56:52.856Z]  INFO: myservice/123 on example.com: My message\n    Error: Something went wrong\n        at Context.done');
+      };
+  
+      try {
+        throw new Error('Something went wrong')
+      } catch (err) {
+        prettyStream.pipe(new TestStream(test, done));
+        prettyStream.write({ ...simpleRecord, err });
+        prettyStream.end();
+      }
+    });
+
+    it('should print regular objects without payload when option printPayload=true', done => {
+      var prettyStream = new PrettyStream({useColor: false, printPayload: false});
+      var test = function(data){
+        data.should.equal('[2012-02-08T22:56:52.856Z]  INFO: myservice/123 on example.com: My message\n    {\n        "response": "Error",\n        "code": 400,\n        "payload": "[Payload object]"\n    }\n');
+      };
+      const err = {
+        response: 'Error',
+        code: 400,
+        payload: {
+          big: 'Object'
+        }
+      };
+
+      prettyStream.pipe(new TestStream(test, done));
+      prettyStream.write({ ...simpleRecord, err });
+      prettyStream.end();
+    });
+
+    it('should print regular objects with payload when option printPayload=false', done => {
+      var prettyStream = new PrettyStream({useColor: false});
+      var test = function(data){
+        data.should.equal('[2012-02-08T22:56:52.856Z]  INFO: myservice/123 on example.com: My message\n    {\n        "response": "Error",\n        "code": 400,\n        "payload": {\n            "big": "Object"\n        }\n    }\n');
+      };
+      const err = {
+        response: 'Error',
+        code: 400,
+        payload: {
+          big: 'Object'
+        }
+      };
+
+      prettyStream.pipe(new TestStream(test, done));
+      prettyStream.write({ ...simpleRecord, err });
+      prettyStream.end();
+    });
+
+    it('should print regular objects with payload when option printPayload=undefined', done => {
+      var prettyStream = new PrettyStream({useColor: false});
+      var test = function(data){
+        data.should.equal('[2012-02-08T22:56:52.856Z]  INFO: myservice/123 on example.com: My message\n    {\n        "response": "Error",\n        "code": 400,\n        "payload": {\n            "big": "Object"\n        }\n    }\n');
+      };
+      const err = {
+        response: 'Error',
+        code: 400,
+        payload: {
+          big: 'Object'
+        }
+      };
+
+      prettyStream.pipe(new TestStream(test, done));
+      prettyStream.write({ ...simpleRecord, err });
+      prettyStream.end();
+    });
+  })
 });
 
 
