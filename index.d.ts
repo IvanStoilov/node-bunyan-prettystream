@@ -8,7 +8,7 @@ declare class PrettyStream extends stream.Writable {
      * @param options.useColor Indicates whether or not output should be colored,
      *                         defaults to `true`.
      */
-    constructor(options?: { mode?: string; useColor?: boolean });
+    constructor(options?: { mode?: string; useColor?: boolean; printPayload?: boolean });
 
     /**
      * Pipes data from this stream to another.
